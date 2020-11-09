@@ -1,6 +1,8 @@
 package io.github.oliverschen.gateway.inbound;
 
 import io.github.oliverschen.gateway.outbound.httpclient4.HttpOutboundHandler;
+import io.github.oliverschen.gateway.router.HttpEndpointRouter;
+import io.github.oliverschen.gateway.router.RibbonRouter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -8,14 +10,22 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(HttpInboundHandler.class);
     private final String proxyServer;
     private HttpOutboundHandler handler;
-    
+    private List<String> servers;
+
+
     public HttpInboundHandler(String proxyServer) {
         this.proxyServer = proxyServer;
+        String proxyServer1 = System.getProperty("proxyServer1","http://localhost:8080");
+        String proxyServer2 = System.getProperty("proxyServer2","http://localhost:8081");
+        servers = Arrays.asList(proxyServer1, proxyServer2);
         handler = new HttpOutboundHandler(this.proxyServer);
     }
     
@@ -34,7 +44,7 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
 //            if (uri.contains("/test")) {
 //                handlerTest(fullRequest, ctx);
 //            }
-    
+            handler.setProxyService(new RibbonRouter().route(servers));
             handler.handle(fullRequest, ctx);
     
         } catch(Exception e) {

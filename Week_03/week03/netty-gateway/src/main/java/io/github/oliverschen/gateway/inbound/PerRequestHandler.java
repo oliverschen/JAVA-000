@@ -9,8 +9,11 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.ReferenceCountUtil;
 
+/**
+ * @author ck
+ */
 public class PerRequestHandler extends ChannelInboundHandlerAdapter {
-    private HttpRequestFilter perRequestFilter;
+    private final HttpRequestFilter perRequestFilter;
 
     public PerRequestHandler() {
         perRequestFilter = new PerRequestFilter();

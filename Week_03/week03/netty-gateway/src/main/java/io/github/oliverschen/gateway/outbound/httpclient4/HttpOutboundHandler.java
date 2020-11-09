@@ -56,6 +56,7 @@ public class HttpOutboundHandler {
     
     public void handle(final FullHttpRequest fullRequest, final ChannelHandlerContext ctx) {
         final String url = this.backendUrl + fullRequest.uri();
+        System.out.println("后端服务地址==>" + backendUrl);
         proxyService.submit(()->fetchGet(fullRequest, ctx, url));
     }
     
@@ -133,6 +134,9 @@ public class HttpOutboundHandler {
         cause.printStackTrace();
         ctx.close();
     }
-    
+
+    public void setProxyService(String backendUrl) {
+        this.backendUrl = backendUrl;
+    }
     
 }
