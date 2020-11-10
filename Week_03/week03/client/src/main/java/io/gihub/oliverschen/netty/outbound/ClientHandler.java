@@ -17,7 +17,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     public ClientHandler(String activeUrl) {
         this.activeUrl = activeUrl;
-
     }
 
     @Override
