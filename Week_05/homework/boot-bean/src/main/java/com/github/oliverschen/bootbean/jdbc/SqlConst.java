@@ -11,9 +11,11 @@ public interface SqlConst {
     String MYSQL_PWD = "root";
 
 
-    String SQL_INSERT_USER = "insert into gk_user(name,birth,address)values(\"李四\",\"2020-09-11\",\"gansu\");";
+    String SQL_INSERT_USER = "insert into gk_user(name,birth,address)values(\"lisi\",\"2020-09-11\",\"gansu\");";
     String SQL_DELETE_USER = "delete from `gk_user` where id=";
     String SQL_UPDATE_USER = "update gk_user set name='%s' where id=%s";
     String SQL_FIND_USER = "select * from `gk_user`;";
+
+    String PS_FIND = "select * from `gk_user` where name = ?";
 
 }

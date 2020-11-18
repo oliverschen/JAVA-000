@@ -6,27 +6,26 @@ import static com.github.oliverschen.bootbean.jdbc.SqlConst.*;
 
 /**
  * @author ck
- * JDBC 操作数据库
+ * 1）使用 JDBC 原声接口，实现数据库的增删改查操作。
  */
-public class JDBCConnect {
+public class JDBCConnect extends BaseConnect {
 
     public static void main(String[] args) {
-
+        Statement st = null;
+        ResultSet rs = null;
         try {
-            // 注册驱动到驱动管理
-            Class.forName(MYSQL_DRIVER_CLASS);
-            Connection conn = DriverManager.getConnection(MYSQL_CONNECT_URL, MYSQL_USER, MYSQL_PWD);
-            Statement st = conn.createStatement();
-
+            st = getStatement();
             findAll(st);
             System.out.println("##操作之后数据##");
             add(st);
             deleteById(st, 1);
-            updateNameById(st, "哈哈", 2);
-            findAll(st);
+            updateNameById(st, "ck", 2);
+            rs = findAll(st);
 
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch ( SQLException e) {
             e.printStackTrace();
+        }finally {
+            close(st,rs, null);
         }
 
     }
@@ -34,14 +33,10 @@ public class JDBCConnect {
     /**
      * 查询所有
      */
-    private static void findAll(Statement st) throws SQLException {
+    private static ResultSet findAll(Statement st) throws SQLException {
         ResultSet rs = st.executeQuery(SQL_FIND_USER);
-        while (rs.next()) {
-            System.out.println("id:" + rs.getInt("id"));
-            System.out.println("name:" + rs.getString("name"));
-            System.out.println("birth:" + rs.getString("birth"));
-            System.out.println("address:" + rs.getString("address"));
-        }
+        printAll(rs);
+        return rs;
     }
 
     /**
