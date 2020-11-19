@@ -6,7 +6,7 @@ package com.github.oliverschen.bootbean.jdbc;
 public interface SqlConst {
 
     String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
-    String MYSQL_CONNECT_URL = "jdbc:mysql://129.204.46.20:3306/geek?serverTimezone=Asia/Shanghai&useSSL=false&useUnicode=true&characterEncoding=utf8";
+    String MYSQL_CONNECT_URL = "jdbc:mysql://localhost:3306/geek?serverTimezone=Asia/Shanghai&useSSL=false&useUnicode=true&characterEncoding=utf8";
     String MYSQL_USER = "root";
     String MYSQL_PWD = "root";
 
