@@ -167,3 +167,7 @@ class BootBeanApplicationTests {
 
 [代码地址](https://github.com/oliverschen/JAVA-000/tree/main/Week_05/homework/boot-bean/src/main/java/com/github/oliverschen/bootbean/jdbc)
 
+单例模式[代码地址](https://github.com/oliverschen/JAVA-000/tree/main/Week_05/homework/boot-bean/src/main/java/com/github/oliverschen/bootbean/singleton)，总的来说如果项目中框架（Spring）提供单例实现的话，尽量依赖框架机制实现，保证程序安全可靠。
+
+
+
