@@ -1,1 +1,6 @@
-/Week_05/homework/target/
+.gitignore
+target
+.idea
+*.iml
+.DS_Store
+.mvn

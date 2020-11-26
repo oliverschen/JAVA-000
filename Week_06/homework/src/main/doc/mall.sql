@@ -1,24 +1,3 @@
-学习笔记
-
-### 第十一课
-
-#### Guava/Stream/Lambda 使用
-
-Stream 和 Lambda 在工作中经常使用，目前业务代码只要不是老旧代码都是用的是 java8 方式来处理的，Guava 没有使用过，练习的[代码地址](https://github.com/oliverschen/JAVA-000/tree/main/Week_06/homework/src/main/java/com/github/oliverschen/homework/guava)
-
-#### 在工作中如何用设计模式解决问题？
-
-在工作中使用最多的模式是模版模式和策略模式
-
-1. 模版模式可以将一些冗余的代码写在抽象类中，将复杂的业务解偶出来，简化业务代码，方便维护。
-2. 策略模式典型的应用是在支付模块中，我们引入了微信App，微信公众号，微信H5，支付宝App，支付宝H5，iOS内购等支付方式，使用策略模式接触大量 if else 判断逻辑
-3. 经常模版和策略组合使用
-
-### 第十二课
-
-#### 电商交易表结构 DDL SQL
-
-```sql
 DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (
@@ -73,4 +52,3 @@ CREATE TABLE `order` (
 	remark VARCHAR(256) CHARSET utf8mb4 COMMENT '备注',
 	deleted INT(2) DEFAULT 0 COMMENT '是否已删除 0 false 1 true'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '订单表';
-```
