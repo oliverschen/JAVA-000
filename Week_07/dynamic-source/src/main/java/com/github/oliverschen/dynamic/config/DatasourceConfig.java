@@ -17,6 +17,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author ck
@@ -59,6 +60,12 @@ public class DatasourceConfig {
         ds.setTargetDataSources(dsMap);
         // 默认从库
         ds.setDefaultTargetDataSource(secondaryDs);
+
+        // 指定所有从库数据源
+        AtomicInteger index = new AtomicInteger(0);
+        Map<Integer, String> secondDsMap = new HashMap<>(4);
+        secondDsMap.put(index.incrementAndGet(), SECONDARY_DS);
+        DataSourceHolder.setSecondaryDs(secondDsMap);
         return ds;
     }
 
