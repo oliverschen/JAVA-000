@@ -64,6 +64,7 @@ show master status;
 #### IP
 
 ```
+# 查看容器的 IP 地址
 docker inspect --format '{{ .NetworkSettings.IPAddress }}' <container-ID> 
 ```
 
@@ -106,105 +107,26 @@ spring:
         minimum-idle: 50
 ```
 
-#### Java配置
+#### 主要流程
 
-##### test数据源
+#### 实现
 
-```java
-/**
- * @author ck
- */
-@Configuration
-@MapperScan(basePackages = "com.github.oliverschen.mybatis.mapper.test",
-            sqlSessionFactoryRef = "sqlSessionFactoryTest",
-            sqlSessionTemplateRef = "sqlSessionTemplateTest")
-public class DataSourceConfigTest {
-    private static final String MAPPER_PATH = "classpath:mapper/test/*.xml";
+1. 通过实现 Datasource 抽象类 AbstractRoutingDataSource 实现动态数据源获取，重写方法 determineCurrentLookupKey() 来指定当前需要的数据源 key
+2. 将数据源配置在 AbstractRoutingDataSource map 缓存中
+3. 通过 determineTargetDataSource() 方法，在缓存数据源的 map 中根据 determineCurrentLookupKey() 返回的 key 获取具体的数据源
 
-    @Primary
-    @Bean(name = "dataSourceTest")
-    @ConfigurationProperties(prefix = "spring.datasource.test")
-    public DataSource datasourceTest() {
-        return DataSourceBuilder.create().build();
-    }
+#### 配置
 
-    @Primary
-    @Bean(name = "sqlSessionFactoryTest")
-    public SqlSessionFactory sqlSessionFactoryTest(
-            @Qualifier("dataSourceTest") DataSource datasourceTest) throws Exception {
-        SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(datasourceTest);
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(MAPPER_PATH));
-        return bean.getObject();
-    }
+1. 根据配置文件，分别注入数据源
+2. 配置动态数据源，将不同的数据源写到 map 中，赋值给 AbstractRoutingDataSource 中的 map
+3. 根据动态数据源创建 sqlSessionFactory sqlTemplate 等组件类
 
-    @Primary
-    @Bean(name = "transactionManagerTest")
-    public DataSourceTransactionManager testTransactionManagerTest(
-            @Qualifier("dataSourceTest") DataSource dataSourceTest) {
-        return new DataSourceTransactionManager(dataSourceTest);
-    }
+#### 选择
 
-    @Primary
-    @Bean(name = "sqlSessionTemplateTest")
-    public SqlSessionTemplate sqlSessionTemplateTest(
-            @Qualifier("sqlSessionFactoryTest") SqlSessionFactory sqlSessionFactoryTest) {
-        return new SqlSessionTemplate(sqlSessionFactoryTest);
-    }
+1. 默认配置从库，定义注解，给需要切库的方法标记注解
+2. 定义 AOP 切面，根据注解设置对应数据库的 key
 
-}
-```
-
-##### geek数据源
-
-```java
-/**
- * @author ck
- */
-@Configuration
-@MapperScan(basePackages = "com.github.oliverschen.mybatis.mapper.geek",
-            sqlSessionFactoryRef = "sqlSessionFactoryGeek",
-            sqlSessionTemplateRef = "sqlSessionTemplateGeek")
-public class DataSourceConfigGeek {
-    private static final String MAPPER_PATH = "classpath:mapper/geek/*.xml";
-
-    @Bean(name = "dataSourceGeek")
-    @ConfigurationProperties(prefix = "spring.datasource.geek")
-    public DataSource datasourceGeek() {
-        return DataSourceBuilder.create().build();
-    }
-
-    @Bean(name = "sqlSessionFactoryGeek")
-    public SqlSessionFactory sqlSessionFactoryGeek(@Qualifier("dataSourceGeek") DataSource datasourceGeek)
-            throws Exception {
-        SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(datasourceGeek);
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(MAPPER_PATH));
-        return bean.getObject();
-    }
-
-    @Bean(name = "transactionManagerGeek")
-    public DataSourceTransactionManager testTransactionManager(
-            @Qualifier("dataSourceGeek") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
-
-    @Bean(name = "sqlSessionTemplateGeek")
-    public SqlSessionTemplate sqlSessionTemplateGeek(@Qualifier("sqlSessionFactoryGeek")
-                                                                SqlSessionFactory sqlSessionFactory) {
-        return new SqlSessionTemplate(sqlSessionFactory);
-    }
-
-}
-```
-
-##### 动态切换
-
-```java
-
-```
-
-
+代码地址(https://github.com/oliverschen/JAVA-000/tree/main/Week_07/dynamic-source)[dynamic-source]
 
 3、（必做）读写分离-数据库框架版本2.0
 
