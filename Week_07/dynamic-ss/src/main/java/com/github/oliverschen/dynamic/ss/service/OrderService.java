@@ -7,4 +7,6 @@ import com.github.oliverschen.dynamic.ss.entity.Order;
  */
 public interface OrderService {
     void insert(Order order);
+
+    Order get(Long id);
 }

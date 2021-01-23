@@ -3,9 +3,7 @@ package com.github.oliverschen.dynamic.ss.controller;
 import com.github.oliverschen.dynamic.ss.entity.Order;
 import com.github.oliverschen.dynamic.ss.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author ck
@@ -23,5 +21,8 @@ public class OrderController {
         return "OK";
     }
 
-
+    @GetMapping("/get/{id}")
+    public Order get(@PathVariable Long id) {
+        return orderService.get(id);
+    }
 }

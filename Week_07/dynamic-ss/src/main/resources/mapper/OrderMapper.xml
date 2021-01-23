@@ -15,6 +15,6 @@
     </insert>
 
     <select id="get" parameterType="java.lang.Long" resultType="com.github.oliverschen.dynamic.ss.entity.Order">
-        select * from `user` where `id` = #{id}
+        select * from `t_order` where `order_id` = #{orderId}
     </select>
 </mapper>

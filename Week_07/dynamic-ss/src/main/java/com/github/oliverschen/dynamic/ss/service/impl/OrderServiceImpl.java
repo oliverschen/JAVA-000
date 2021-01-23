@@ -20,4 +20,10 @@ public class OrderServiceImpl implements OrderService {
     public void insert(Order order) {
         orderMapper.insert(order);
     }
+
+    @Override
+    public Order get(Long id) {
+        return orderMapper.get(id);
+    }
+
 }

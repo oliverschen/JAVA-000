@@ -10,4 +10,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface OrderMapper {
 
     void insert(Order order);
+
+    Order get(Long id);
 }

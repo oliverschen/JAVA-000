@@ -130,13 +130,37 @@ spring:
 
 3、（必做）读写分离-数据库框架版本2.0
 
+#### ShardingSphere 读写分离
+
+##### 配置
+
+```properties
+spring:
+  shardingsphere:
+    datasource:
+      names: main,secondary
+      main: # 主库配置
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbcUrl: jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+        username: root
+        password: root
+      secondary: #从库配置
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbcUrl: jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+        username: root
+        password: root
+    masterslave: # 主从信息配置
+      name: ms
+      master-data-source-name: main
+      slave-data-source-names: secondary
+    props:
+      sql:
+        show: true
+```
+
+使用 sharingshpere 实现数据库读写分离操作，具体代码地址 [dynamic-ss](https://github.com/oliverschen/JAVA-000/tree/main/Week_07/dynamic-ss)
 
 
-4、（选做）读写分离-数据库中间件版本3.0
-
-5、（选做）配置 MHA，模拟 master 宕机
-
-6、（选做）配置 MGR，模拟 master 宕机
-
-7、（选做）配置 Orchestrator，模拟 master 宕机，演练 UI 调整拓扑结构
 
