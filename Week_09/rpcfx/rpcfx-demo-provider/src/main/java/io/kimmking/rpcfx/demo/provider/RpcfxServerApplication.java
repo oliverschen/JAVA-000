@@ -30,23 +30,23 @@ import java.net.UnknownHostException;
 public class RpcfxServerApplication {
 
 	public static void main(String[] args) throws Exception {
-
-		// start zk client
-		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-		CuratorFramework client = CuratorFrameworkFactory.builder().connectString("localhost:2181").namespace("rpcfx").retryPolicy(retryPolicy).build();
-		client.start();
-
-
-		// register service
-		// xxx "io.kimmking.rpcfx.demo.api.UserService"
-
-		String userService = "io.kimking.rpcfx.demo.api.UserService";
-		registerService(client, userService);
-		String orderService = "io.kimking.rpcfx.demo.api.OrderService";
-		registerService(client, orderService);
-
-
-		// 进一步的优化，是在spring加载完成后，从里面拿到特定注解的bean，自动注册到zk
+//
+//		// start zk client
+//		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+//		CuratorFramework client = CuratorFrameworkFactory.builder().connectString("localhost:2181").namespace("rpcfx").retryPolicy(retryPolicy).build();
+//		client.start();
+//
+//
+//		// register service
+//		// xxx "io.kimmking.rpcfx.demo.api.UserService"
+//
+//		String userService = "io.kimking.rpcfx.demo.api.UserService";
+//		registerService(client, userService);
+//		String orderService = "io.kimking.rpcfx.demo.api.OrderService";
+//		registerService(client, orderService);
+//
+//
+//		// 进一步的优化，是在spring加载完成后，从里面拿到特定注解的bean，自动注册到zk
 
 		SpringApplication.run(RpcfxServerApplication.class, args);
 	}
@@ -84,23 +84,10 @@ public class RpcfxServerApplication {
 
 	@Bean
 	public RpcfxResolver createResolver(){
-		return new DemoResolver();
+		return new MapResolver();
 	}
 
-	// 能否去掉name
-	//
-
-	// annotation
-
-
-	@Bean(name = "io.kimmking.rpcfx.demo.api.UserService")
-	public UserService createUserService(){
-		return new UserServiceImpl();
-	}
-
-	@Bean(name = "io.kimmking.rpcfx.demo.api.OrderService")
-	public OrderService createOrderService(){
-		return new OrderServiceImpl();
-	}
+	// 能否去掉name ？ 
+	// 使用 @Service 自动注册 bean 到 IoC 容器，实现 BeanPostProcessor 接口将需要的 bean 放在 Map 中。
 
 }

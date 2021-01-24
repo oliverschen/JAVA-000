@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.List;
-import java.util.Random;
 
 @SpringBootApplication
 public class RpcfxClientApplication {
@@ -21,7 +20,6 @@ public class RpcfxClientApplication {
 	// 二方库
 	// 三方库 lib
 	// nexus, userserivce -> userdao -> user
-	//
 
 	public static void main(String[] args) {
 
@@ -37,7 +35,7 @@ public class RpcfxClientApplication {
 		System.out.println(String.format("find order name=%s, amount=%f",order.getName(),order.getAmount()));
 
 		//
-		UserService userService2 = Rpcfx.createFromRegistry(UserService.class, "localhost:2181", new TagRouter(), new RandomLoadBalancer(), new CuicuiFilter());
+//		UserService userService2 = Rpcfx.createFromRegistry(UserService.class, "localhost:2181", new TagRouter(), new RandomLoadBalancer(), new CuicuiFilter());
 
 //		SpringApplication.run(RpcfxClientApplication.class, args);
 	}

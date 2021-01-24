@@ -2,7 +2,9 @@ package io.kimmking.rpcfx.demo.provider;
 
 import io.kimmking.rpcfx.demo.api.Order;
 import io.kimmking.rpcfx.demo.api.OrderService;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrderServiceImpl implements OrderService {
 
     @Override
