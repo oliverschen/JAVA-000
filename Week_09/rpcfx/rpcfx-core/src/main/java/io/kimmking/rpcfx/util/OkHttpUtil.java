@@ -1,6 +1,7 @@
 package io.kimmking.rpcfx.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.ParserConfig;
 import io.kimmking.rpcfx.api.RpcfxRequest;
 import io.kimmking.rpcfx.api.RpcfxResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,9 @@ import java.util.Objects;
 @Slf4j
 public class OkHttpUtil {
 
+    static {
+        ParserConfig.getGlobalInstance().addAccept("io.kimmking");
+    }
     public static final MediaType JSONTYPE = MediaType.get("application/json; charset=utf-8");
 
     public static RpcfxResponse post(RpcfxRequest req, String url) throws IOException {

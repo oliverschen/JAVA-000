@@ -11,11 +11,6 @@ import java.lang.reflect.Proxy;
 
 public final class Rpcfx {
 
-    static {
-        ParserConfig.getGlobalInstance().addAccept("io.kimmking");
-    }
-
-
     /**
      * JDK 动态代理的方式实现
      */
