@@ -6,6 +6,7 @@ import io.kimmking.rpcfx.api.RpcfxRequest;
 import io.kimmking.rpcfx.api.RpcfxResponse;
 import io.kimmking.rpcfx.util.OkHttpUtil;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -29,7 +30,7 @@ public class RpcfxInvocationHandler implements InvocationHandler {
     // [], data class
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] params) throws IOException {
 
         // 加filter地方之二
         // mock == true, new Student("hubao");
@@ -40,13 +41,14 @@ public class RpcfxInvocationHandler implements InvocationHandler {
         request.setParams(params);
 
         RpcfxResponse response = OkHttpUtil.post(request, url);
-
         // 加filter地方之三
         // Student.setTeacher("cuijing");
 
-        // 这里判断response.status，处理异常
+        // 这里判断response，status，处理异常
         // 考虑封装一个全局的RpcfxException
-
+        if (!response.isStatus()) {
+            throw response.getException();
+        }
         return JSON.parse(response.getResult().toString());
     }
 }

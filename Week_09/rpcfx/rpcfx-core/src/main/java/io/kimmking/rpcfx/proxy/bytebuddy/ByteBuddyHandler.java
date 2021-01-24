@@ -46,6 +46,9 @@ public class ByteBuddyHandler {
 
         // 这里判断response.status，处理异常
         // 考虑封装一个全局的RpcfxException
+        if (!response.isStatus()) {
+            return response.getException();
+        }
 
         return JSON.parse(response.getResult().toString());
     }

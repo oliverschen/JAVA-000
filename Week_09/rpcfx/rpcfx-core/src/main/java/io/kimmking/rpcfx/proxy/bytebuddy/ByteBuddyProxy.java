@@ -23,7 +23,7 @@ public class ByteBuddyProxy {
                 .getLoaded();
         try {
             if (clazz == null) {
-                return null;
+                throw new RpcfxException("create instance error on bytebyddy");
             }
             return (T) clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
