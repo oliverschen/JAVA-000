@@ -38,10 +38,6 @@
                     <groupId>org.mongodb</groupId>
                     <artifactId>mongo-java-driver</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.gu</groupId>
-                    <artifactId>mongodb-auto-discovery_2.11</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

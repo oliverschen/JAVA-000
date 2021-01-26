@@ -1,5 +1,7 @@
 学习笔记
 
+## 第17课
+
 1、（选做）实现简单的Protocol Buffer/Thrift/gRPC(选任一个)远程调用demo。
 
 ### gRPC
@@ -53,16 +55,71 @@ RPC：远程过程调用，简单来说就是“像调用本地方法一样调�
 
 代码地址[rpcfx](https://github.com/oliverschen/JAVA-000/tree/main/Week_09/rpcfx)
 
-4、（选做☆☆）升级自定义RPC的程序：（待实现）
+## 第18 课
 
-​	1）尝试使用压测并分析优化RPC性能
+1.2作业已经练习完成
 
-​	2）尝试使用Netty+TCP作为两端传输方式
+3、（必做）结合dubbo+hmily，实现一个TCC外汇交易处理，代码提交到github： 
 
-​	3）尝试自定义二进制序列化
+​	1）用户A的美元账户和人民币账户都在A库，使用1美元兑换7人民币； 
 
-​	4）尝试压测改进后的RPC并分析优化，有问题欢迎群里讨论
+​	2）用户B的美元账户和人民币账户都在B库，使用7人民币兑换1美元； 
 
-​	5）尝试将fastjson改成xstream
+​	3）设计账户表，冻结资产表，实现上述两个本地事务的分布式事务。
 
-​	6）尝试使用字节码生成方式代替服务端反射
+代码地址[dubbo+hmily](https://github.com/oliverschen/JAVA-000/tree/main/Week_09/dubbo-hmily)
+
+使用多数据源的方式完成分布式事务模拟，启动 dubbo-account 服务
+
+执行`http://localhost:8080/ex/cny?cny=7` 实现 user_1 中用户张三转账 7 人民币给 user_2 中用户李四 1 美元到美元账户转账。
+
+执行`http://localhost:8080/ex/usd?cny=14` 实现 user_2 中李四转账 2 美元给 user_1 中用户张三 14 人民币到人民币账户。
+
+#### 问题
+
+1. 关于多数据源配置时，mybatis 的 Java 和 数据库驼峰映射的参数 `map-underscore-to-camel-case` 会失效，需要手动将其添加到配置中
+
+```java
+@Bean(name = "sqlSessionFactoryUser1")
+public SqlSessionFactory sqlSessionFactoryUser1(
+        @Qualifier("dataSourceUser1") DataSource datasourceUser1,
+        @Qualifier("configuration") org.apache.ibatis.session.Configuration configuration)
+        throws Exception {
+    SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+    bean.setDataSource(datasourceUser1);
+  	// 添加配置
+    bean.setConfiguration(configuration);
+    bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(MAPPER_PATH));
+    return bean.getObject();
+}
+/**
+ * 主要加载驼峰命名转换
+ */
+@Bean(name = "configuration")
+@ConfigurationProperties(prefix = "mybatis.configuration")
+public org.apache.ibatis.session.Configuration configuration() {
+    return new org.apache.ibatis.session.Configuration();
+}
+```
+
+2. hmily 中 `hmily-core` 需要排除 mongo 驱动包
+
+```xml
+<dependency>
+    <groupId>org.dromara</groupId>
+    <artifactId>hmily-core</artifactId>
+    <version>2.1.1</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
+不排除会有一下错误：
+
+```bashThe following method did not exist:
+com.mongodb.MongoClientSettings$Builder.uuidRepresentation(Lorg/bson/UuidRepresentation;)Lcom/mongodb/MongoClientSettings$Builder;
+```
