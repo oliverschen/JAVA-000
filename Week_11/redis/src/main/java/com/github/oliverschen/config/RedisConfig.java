@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -15,18 +14,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import javax.annotation.Resource;
+
 /**
  * @author ck
  */
 @Configuration
 public class RedisConfig extends CachingConfigurerSupport {
-
 
     /**
      * 自定义生成redis-key
@@ -46,7 +47,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     }
 
     @Bean
-    public <T, V> RedisTemplate<T, V> redisTemplate(RedisConnectionFactory factory) {
+    public <T, V> RedisTemplate<T, V> redisTemplate(LettuceConnectionFactory factory) {
         RedisTemplate<T, V> redisTemplate = new RedisTemplate<>();
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
         Jackson2JsonRedisSerializer<?> jackson = buildJacksonSerializer();
@@ -65,10 +66,8 @@ public class RedisConfig extends CachingConfigurerSupport {
         Jackson2JsonRedisSerializer<?> jackson = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                // 注入字段类型「类信息」
-                ObjectMapper.DefaultTyping.NON_FINAL);
+        // 注入字段类型「类信息」
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         // 碰到不能解析字段不报错
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 禁止时间字段解析成时间戳
@@ -81,14 +80,13 @@ public class RedisConfig extends CachingConfigurerSupport {
 
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory factory) {
+    public CacheManager cacheManager(LettuceConnectionFactory factory) {
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
         Jackson2JsonRedisSerializer<?> jackson2JsonRedisSerializer = buildJacksonSerializer();
         // 配置序列化（解决乱码的问题）,过期时间3600秒
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
-                .disableCachingNullValues();
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer));
         return RedisCacheManager.builder(factory).cacheDefaults(config).build();
     }
 

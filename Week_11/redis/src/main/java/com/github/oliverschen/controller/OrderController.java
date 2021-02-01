@@ -25,4 +25,16 @@ public class OrderController {
     public Order get(@PathVariable Long id) {
         return orderService.get(id);
     }
+
+    @PostMapping("/update")
+    public String update(@RequestBody Order order) {
+        orderService.update(order);
+        return "OK";
+    }
+
+    @DeleteMapping("/del/{id}")
+    public String del(@PathVariable Long id) {
+        orderService.del(id);
+        return "OK";
+    }
 }

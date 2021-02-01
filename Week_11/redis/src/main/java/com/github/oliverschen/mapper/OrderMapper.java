@@ -12,4 +12,9 @@ public interface OrderMapper {
     void insert(Order order);
 
     Order get(Long id);
+
+    void update(Order order);
+
+    void del(Long id);
+
 }
