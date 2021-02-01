@@ -1,1 +1,32 @@
+server:
+  port: 8080
 
+spring:
+  redis:
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 3
+    host: localhost
+    port: 6370
+  #    jedis:
+#      pool:
+#        max-idle: 8
+#        max-active: 8
+#        min-idle: 3
+  datasource:
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 200
+      minimum-idle: 10
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.github.oliverschen.entity
+  configuration:
+    map-underscore-to-camel-case: true
