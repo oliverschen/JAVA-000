@@ -1,9 +1,11 @@
 package com.github.oliverschen.service.impl;
 
+import com.github.oliverschen.common.RedisLock;
 import com.github.oliverschen.entity.Order;
 import com.github.oliverschen.mapper.OrderMapper;
 import com.github.oliverschen.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,6 +22,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     private OrderMapper orderMapper;
+    @Autowired
+    private RedisLock<String,Object> redisLock;
 
     @Override
     public void insert(Order order) {
@@ -36,7 +40,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @CachePut(key = "#order.id",value = "userCache")
     public void update(Order order) {
-        orderMapper.update(order);
+        String chenkui = redisLock.lock("chenkui", 10L, 10L);
+        if (chenkui != null) {
+            orderMapper.update(order);
+        }
+        redisLock.unlock(chenkui);
     }
 
     @Override
