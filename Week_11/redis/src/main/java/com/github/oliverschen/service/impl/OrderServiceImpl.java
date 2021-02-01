@@ -40,11 +40,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @CachePut(key = "#order.id",value = "userCache")
     public void update(Order order) {
-        String chenkui = redisLock.lock("chenkui", 10L, 10L);
-        if (chenkui != null) {
+        boolean result = redisLock.lock("chenkui", 10L, 10L);
+        if (result) {
             orderMapper.update(order);
         }
-        redisLock.unlock(chenkui);
+        redisLock.unlock();
     }
 
     @Override
