@@ -1,5 +1,6 @@
 package com.github.oliverschen.service.impl;
 
+import com.github.oliverschen.common.RedisDb;
 import com.github.oliverschen.common.RedisLock;
 import com.github.oliverschen.entity.Order;
 import com.github.oliverschen.mapper.OrderMapper;
@@ -24,6 +25,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
     @Autowired
     private RedisLock<String,Object> redisLock;
+    @Autowired
+    private RedisDb<String, Object> redisDb;
 
     @Override
     public void insert(Order order) {
@@ -51,6 +54,15 @@ public class OrderServiceImpl implements OrderService {
     @CacheEvict(key = "#id",value = "userCache")
     public void del(Long id) {
         orderMapper.del(id);
+    }
+
+    @Override
+    public void stock(String doWork) {
+        if ("add".equals(doWork)) {
+            redisDb.increment("zzz", 1L);
+        }else {
+            redisDb.decrement("zzz", 1);
+        }
     }
 
 }

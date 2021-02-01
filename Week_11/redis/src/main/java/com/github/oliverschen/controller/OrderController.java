@@ -37,4 +37,10 @@ public class OrderController {
         orderService.del(id);
         return "OK";
     }
+
+    @GetMapping("/stock/{doWork}")
+    public String stock(@PathVariable String doWork) {
+        orderService.stock(doWork);
+        return "OK";
+    }
 }

@@ -15,4 +15,6 @@ public interface OrderService {
     void update(Order order);
 
     void del(Long id);
+
+    void stock(String doWork);
 }
