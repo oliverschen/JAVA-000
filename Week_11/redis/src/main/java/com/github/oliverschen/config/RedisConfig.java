@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.oliverschen.listen.RedisListener;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.interceptor.KeyGenerator;
@@ -16,18 +17,22 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import javax.annotation.Resource;
 
 /**
  * @author ck
  */
 @Configuration
 public class RedisConfig extends CachingConfigurerSupport {
+
+    public static final String REDIS_CHANNEL_ORDER = "REDIS_CHANNEL_ORDER";
+    private static final String REDIS_LISTEN_METHOD = "process";
 
     /**
      * 自定义生成redis-key
@@ -89,5 +94,28 @@ public class RedisConfig extends CachingConfigurerSupport {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer));
         return RedisCacheManager.builder(factory).cacheDefaults(config).build();
     }
+
+
+    /**
+     * 绑定监听方法
+     */
+    @Bean
+    public MessageListenerAdapter listenerAdapter(RedisListener redisListener) {
+        return new MessageListenerAdapter(redisListener, REDIS_LISTEN_METHOD);
+    }
+
+    /**
+     * 订阅配置
+     */
+    @Bean
+    public RedisMessageListenerContainer container(RedisConnectionFactory factory,
+                                                   MessageListenerAdapter listenerAdapter) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(factory);
+        container.addMessageListener(listenerAdapter, PatternTopic.of(REDIS_CHANNEL_ORDER));
+        return container;
+    }
+
+
 
 }
