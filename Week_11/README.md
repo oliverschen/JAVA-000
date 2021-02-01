@@ -199,7 +199,7 @@ keyspace_hits / (keyspace_hits + keyspace_misses)
 
 redisson 和 redis 包版本需要注意，容易出现版本不兼容现象。[redis](https://github.com/oliverschen/JAVA-000/tree/main/Week_11)
 
-### 4. **（必做）**基于Redis封装分布式数据操作
+### 4.（必做）基于Redis封装分布式数据操作
 
 #### 1）在Java中实现一个简单的分布式锁
 
