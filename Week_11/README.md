@@ -413,5 +413,367 @@ public void insert(Order order) {
 
 以上作业代码地址[redis](https://github.com/oliverschen/JAVA-000/tree/main/Week_11)
 
+## 第二十三课
 
+### 1.（必做）配置redis的主从复制，sentinel高可用，Cluster集群。 
 
+提交如下内容到github： 
+
+#### 1）config配置文件
+
+##### 主从复制
+
+###### 结构
+
+```bash
+--docker-compose.yml
+--redis/
+	--conf/
+		--redis.conf
+	--data/
+--redis-slave01/
+	--conf/
+		--redis-6380.conf
+	--data/
+--redis-slave02/
+	--conf/
+		--redis-6381.conf
+	--data/
+```
+
+###### 主节点
+
+```properties
+bind 0.0.0.0
+# 启用保护模式
+protected-mode no
+# 监听端口
+port 6379
+# 启动时不打印logo
+always-show-logo no
+# 设定密码认证
+requirepass redis
+```
+
+###### 从节点
+
+```properties
+bind 0.0.0.0
+# 启用保护模式
+protected-mode no
+# 监听端口
+port 6380
+# 启动时不打印logo
+always-show-logo no
+# 设定密码认证
+requirepass redis
+# 配置master节点信息
+#slaveof <masterip> <masterport>
+# 此处masterip所指定的redis-master是运行master节点的容器名
+# Docker容器间可以使用容器名代替实际的IP地址来通信
+replicaof 127.0.0.1 6379
+
+# 设定连接主节点所使用的密码
+masterauth "root"
+```
+
+另外还要修改端口 `6381` 配置第二个从节点
+
+###### docker-compose
+
+```yml
+---
+
+version: '3'
+
+services:
+  # 主节点的容器
+  redis-master:
+    image: redis:latest
+    container_name: redis-master
+    restart: always
+    # 指定时区，保证容器内时间正确
+    environment:
+      TZ: "Asia/Shanghai"
+    ports:
+      - "6379:6379"
+    network_mode: host
+    volumes:
+      # 映射配置文件和数据目录
+      - ./redis/conf/redis.conf:/etc/redis/redis.conf
+      - ./redis/data:/data
+    sysctls:
+      # 必要的内核参数
+      net.core.somaxconn: '511'
+    command: ["redis-server", "/etc/redis/redis.conf"]
+  # 从节点1的容器
+  redis-slave-1:
+    image: redis:latest
+    container_name: redis-slave-1
+    restart: always
+    depends_on:
+      - redis-master
+    environment:
+      TZ: "Asia/Shanghai"
+    ports:
+      - "6380:6380"
+    network_mode: host
+    volumes:
+      - ./redis-slave01/conf/redis-6380.conf:/etc/redis/redis.conf
+      - ./redis-slave01/data:/data
+    sysctls:
+      net.core.somaxconn: '511'
+    command: ["redis-server", "/etc/redis/redis.conf"]
+  # 从节点2的容器
+  redis-slave-2:
+    image: redis:latest
+    container_name: redis-slave-2
+    restart: always
+    depends_on:
+      - redis-master
+    ports:
+      - "6381:6381"
+    network_mode: host
+    environment:
+      TZ: "Asia/Shanghai"
+    volumes:
+      - ./redis-slave02/conf/redis-6381.conf:/etc/redis/redis.conf
+      - ./redis-slave02/data:/data
+    sysctls:
+      net.core.somaxconn: '511'
+    command: ["redis-server", "/etc/redis/redis.conf"]
+```
+
+###### 测试
+
+主节点
+
+```bash
+127.0.0.1:6379> set d x
+OK
+```
+
+从节点
+
+```bash
+127.0.0.1:6380> set d x
+(error) READONLY You can't write against a read only replica.
+# 读数据
+127.0.0.1:6380> get d
+"x"
+```
+
+##### sentinel高可用
+
+###### 配置
+
+```properties
+bind 0.0.0.0
+# 哨兵的端口号
+port 26379
+
+# 配置哨兵的监控参数
+# 格式：sentinel monitor <master-name> <ip> <redis-port> <quorum>
+# master-name是为这个被监控的master起的名字
+# ip是被监控的master的IP或主机名。因为Docker容器之间可以使用容器名访问，所以这里写master节点的容器名
+# redis-port是被监控节点所监听的端口号
+# quorom设定了当几个哨兵判定这个节点失效后，才认为这个节点真的失效了
+sentinel monitor local-master 127.0.0.1 6379 2
+
+# 连接主节点的密码
+# 格式：sentinel auth-pass <master-name> <password>
+sentinel auth-pass local-master root
+
+# master在连续多长时间无法响应PING指令后，就会主观判定节点下线，默认是30秒
+# 格式：sentinel down-after-milliseconds <master-name> <milliseconds>
+sentinel down-after-milliseconds local-master 30000
+```
+
+在创建2个配置，修改端口
+
+###### docker-compose
+
+```properties
+---
+
+version: '3'
+
+services:
+  redis-sentinel-1:
+    image: redis:latest
+    container_name: redis-sentinel-1
+    restart: always
+    network_mode: host
+    volumes:
+      - ./redis-sentinel-1.conf:/etc/redis/redis-sentinel.conf
+    environment:
+      TZ: "Asia/Shanghai"
+    sysctls:
+      net.core.somaxconn: '511'
+    command: ["redis-sentinel", "/etc/redis/redis-sentinel.conf"]
+  redis-sentinel-2:
+    image: redis:latest
+    container_name: redis-sentinel-2
+    restart: always
+    network_mode: host
+    volumes:
+      - ./redis-sentinel-2.conf:/etc/redis/redis-sentinel.conf
+    environment:
+      TZ: "Asia/Shanghai"
+    sysctls:
+      net.core.somaxconn: '511'
+    command: ["redis-sentinel", "/etc/redis/redis-sentinel.conf"]
+  redis-sentinel-3:
+    image: redis:latest
+    container_name: redis-sentinel-3
+    restart: always
+    network_mode: host
+    volumes:
+      - ./redis-sentinel-3.conf:/etc/redis/redis-sentinel.conf
+    environment:
+      TZ: "Asia/Shanghai"
+    sysctls:
+      net.core.somaxconn: '511'
+    command: ["redis-sentinel", "/etc/redis/redis-sentinel.conf"]
+```
+
+###### 测试
+
+```bash
+# Sentinel
+sentinel_masters:1
+sentinel_tilt:0
+sentinel_running_scripts:0
+sentinel_scripts_queue_length:0
+sentinel_simulate_failure_flags:0
+master0:name=local-master,status=ok,address=127.0.0.1:6379,slaves=2,sentinels=3
+```
+
+停掉主节点 `6379`重试 30s 后会自动选主
+
+```bash
+127.0.0.1:26379> info sentinel
+# Sentinel
+sentinel_masters:1
+sentinel_tilt:0
+sentinel_running_scripts:0
+sentinel_scripts_queue_length:0
+sentinel_simulate_failure_flags:0
+master0:name=local-master,status=ok,address=127.0.0.1:6380,slaves=2,sentinels=3
+```
+
+##### 集群
+
+###### 配置
+
+**主节点**
+
+```bash
+daemonize yes
+port 7001
+pidfile /var/run/redis-7001.pid
+dir /Users/chenkui/develop/docker/app/redis-cluster/7001/
+cluster-enabled yes
+cluster-config-file nodes-7001.conf
+cluster-node-timeout 10000
+# bind 127.0.0.1（bind绑定的是自己机器网卡的ip，如果有多块网卡可以配多个ip，代表允许客户端通过机器的哪些网卡ip去访问，内网一般可以不配置bind，注释掉即可）
+protected-mode  no
+appendonly yes
+```
+
+修改端口复制 3 份到不同目录下
+
+**从节点**
+
+```bash
+daemonize yes
+port 7004
+pidfile /var/run/redis-7004.pid
+dir /Users/chenkui/develop/docker/app/redis-cluster/7004/
+cluster-enabled yes
+cluster-config-file nodes-7004.conf
+cluster-node-timeout 10000
+# bind 127.0.0.1（bind绑定的是自己机器网卡的ip，如果有多块网卡可以配多个ip，代表允许客户端通过机器的哪些网卡ip去访问，内网一般可以不配置bind，注释掉即可）
+protected-mode  no
+appendonly yes
+```
+
+修改端口复制 3 份到不同目录下
+
+**启动所有节点**
+
+> 指定不同端口配置文件启动所有节点
+>
+> ~/develop/docker/app/redis-cluster/7001/redis.conf
+
+**创建集群**
+
+```bash
+./redis-cli --cluster create --cluster-replicas 1 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006
+```
+
+###### 测试
+
+```bash
+127.0.0.1:7001> cluster info
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:6
+cluster_my_epoch:1
+cluster_stats_messages_ping_sent:83
+cluster_stats_messages_pong_sent:96
+cluster_stats_messages_sent:179
+cluster_stats_messages_ping_received:91
+cluster_stats_messages_pong_received:83
+cluster_stats_messages_meet_received:5
+cluster_stats_messages_received:179
+```
+
+```bash
+➜  bin ./redis-cli -c -p 7001
+127.0.0.1:7001> set x 1
+-> Redirected to slot [16287] located at 127.0.0.1:7003
+OK
+```
+
+#### 2）启动和操作、验证集群下数据读写的命令步骤
+
+##### 配置
+
+```yml
+spring:
+  redis:
+# lettuce 客户端
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 3
+# 单机配置
+#    host: localhost
+#    port: 6379
+#    password: root
+# 集群配置
+    cluster:
+      nodes:
+        - 127.0.0.1:7001
+        - 127.0.0.1:7002
+        - 127.0.0.1:7003
+        - 127.0.0.1:7004
+        - 127.0.0.1:7005
+        - 127.0.0.1:7006
+      max-redirects: 12
+# jedis 客户端
+#    jedis:
+#      pool:
+#        max-idle: 8
+#        max-active: 8
+#        min-idle: 3
+```
+
+代码地址[redis](https://github.com/oliverschen/JAVA-000/tree/main/Week_11)

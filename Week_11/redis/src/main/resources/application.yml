@@ -8,8 +8,18 @@ spring:
         max-active: 8
         max-idle: 8
         min-idle: 3
-    host: localhost
-    port: 6379
+#    host: localhost
+#    port: 6379
+#    password: root
+    cluster:
+      nodes:
+        - 127.0.0.1:7001
+        - 127.0.0.1:7002
+        - 127.0.0.1:7003
+        - 127.0.0.1:7004
+        - 127.0.0.1:7005
+        - 127.0.0.1:7006
+      max-redirects: 12
   #    jedis:
 #      pool:
 #        max-idle: 8

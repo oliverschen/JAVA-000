@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * redisson 配置
  * @author ck
  */
-@Configuration
+//@Configuration
 public class RedissonConfig {
 
     @Bean
