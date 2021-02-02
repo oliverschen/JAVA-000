@@ -143,7 +143,7 @@ GUI的Double Buffer（双缓冲），是一个经典的性能优化方法
 
 ### Lua脚本
 
-\- 类似于数据库的存储过程，mongodb的js脚本. (redisbook)[https://redisbook.readthedocs.io/en/latest/feature/scripting.html]
+\- 类似于数据库的存储过程，mongodb的js脚本. [redisbook](https://redisbook.readthedocs.io/en/latest/feature/scripting.html)
 
 ```bash
 #在脚本环境的初始化工作完成以后， Redis 就可以通过 EVAL 命令或 EVALSHA 命令执行 Lua 脚本了。
