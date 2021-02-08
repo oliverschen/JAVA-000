@@ -5,8 +5,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 
-import static com.github.oliverschen.mq.Const.BROKER_URL;
-import static com.github.oliverschen.mq.Const.CK_MSG;
+import static com.github.oliverschen.mq.Const.*;
 
 /**
  * @author ck
@@ -29,8 +28,9 @@ public class Producer {
             session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
             // 队列
-            Queue queue = session.createQueue(CK_MSG);
-            producer = session.createProducer(queue);
+//            Queue destination = session.createQueue(CK_MSG);
+            Topic destination = session.createTopic(CK_MSG_TOPIC);
+            producer = session.createProducer(destination);
             for (int i = 0; i < 5; i++) {
                 String msg = "my id is : " + i;
                 TextMessage textMessage = session.createTextMessage(msg);

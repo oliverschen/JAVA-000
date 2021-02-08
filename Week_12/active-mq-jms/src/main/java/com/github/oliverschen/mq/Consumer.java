@@ -6,7 +6,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.*;
 
 import static com.github.oliverschen.mq.Const.BROKER_URL;
-import static com.github.oliverschen.mq.Const.CK_MSG;
+import static com.github.oliverschen.mq.Const.CK_MSG_TOPIC;
 
 /**
  * @author ck
@@ -27,8 +27,10 @@ public class Consumer {
 
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            Queue queue = session.createQueue(CK_MSG);
-            MessageConsumer consumer = session.createConsumer(queue);
+//            Queue destination = session.createQueue(CK_MSG);
+            Topic destination = session.createTopic(CK_MSG_TOPIC);
+
+            MessageConsumer consumer = session.createConsumer(destination);
 
             while (true) {
                 TextMessage receive = (TextMessage) consumer.receive(2000);
