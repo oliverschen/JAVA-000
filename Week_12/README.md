@@ -150,9 +150,7 @@ public class Consumer {
 
 ### 第 25 课作业
 
-1. **(必做)** 搭建一个3节点Kafka集群，测试功能和性能；实现spring kafka下对kafka集群 
-
-的操作，将代码提交到github。 
+1. **(必做)** 搭建一个3节点Kafka集群，测试功能和性能；实现spring kafka下对kafka集群的操作，将代码提交到github。 
 
 #### Docker 搭建
 
@@ -177,9 +175,88 @@ kafka 集群暂时没有搭建，后面有空余时间完善*
 
 #### 使用
 
+##### pom
 
+```xml
+<dependency>
+    <groupId>org.springframework.kafka</groupId>
+    <artifactId>spring-kafka</artifactId>
+</dependency>
+```
 
+##### 配置
 
+```properties
+### kafka 配置
+spring:
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    ### producer
+    producer:
+      retries: 0
+      batch-size: 16384
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    ### consumer
+    consumer:
+      group-id: jihe
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 100
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+```
+
+##### producer
+
+```java
+@GetMapping("/kafka")
+public void kafkaProducer() throws JsonProcessingException {
+    for (int i = 0; i < 10; i++) {
+        Msg message = new Msg();
+        message.setId(System.currentTimeMillis());
+        message.setMsg("消息 ：" + i);
+        message.setSendTime(LocalDateTime.now());
+        log.info("+++++++++++++++++++++  message = {}", message.toString());
+        kafkaTemplate.send("jihe", mapper.writeValueAsString(message));
+    }
+}
+```
+
+##### consumer
+
+```java
+public class Consumer {
+    @KafkaListener(topics = {"jihe"})
+    public void listen(ConsumerRecord<?, ?> record) {
+
+        Optional.ofNullable(record.value()).ifPresent(out::println);
+
+        log.info("record::::{}", record);
+    }
+}
+```
+
+##### 测试
+
+```bash
+2021-02-16 01:06:14.758  INFO 44501 --- [nio-8081-exec-1] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 2.6.0
+2021-02-16 01:06:14.758  INFO 44501 --- [nio-8081-exec-1] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 62abe01bee039651
+2021-02-16 01:06:14.758  INFO 44501 --- [nio-8081-exec-1] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1613408774758
+2021-02-16 01:06:14.765  INFO 44501 --- [ad | producer-1] org.apache.kafka.clients.Metadata        : [Producer clientId=producer-1] Cluster ID: DOeAtGoQQ3yaS0VmoM5vfw
+2021-02-16 01:06:14.782  INFO 44501 --- [nio-8081-exec-1] c.g.oliverschen.mq.MqAllApplication      : +++++++++++++++++++++  message = Msg(id=1613408774782, msg=消息 ：1, sendTime=2021-02-16T01:06:14.782)
+2021-02-16 01:06:14.783  INFO 44501 --- [nio-8081-exec-1] c.g.oliverschen.mq.MqAllApplication      : +++++++++++++++++++++  message = Msg(id=1613408774783, msg=消息 ：2, sendTime=2021-02-16T01:06:14.783)
+{"id":1613408774666,"msg":"消息 ：0","sendTime":{"dayOfWeek":"TUESDAY","dayOfYear":47,"year":2021,"month":"FEBRUARY","nano":666000000,"monthValue":2,"dayOfMonth":16,"hour":1,"minute":6,"second":14,"chronology":{"calendarType":"iso8601","id":"ISO"}}}
+2021-02-16 01:06:14.825  INFO 44501 --- [ntainer#0-0-C-1] c.github.oliverschen.mq.kafka.Consumer   : record::::ConsumerRecord(topic = jihe, partition = 0, leaderEpoch = 0, offset = 0, CreateTime = 1613408774765, serialized key size = -1, serialized value size = 252, headers = RecordHeaders(headers = [], isReadOnly = false), key = null, value = {"id":1613408774666,"msg":"消息 ：0","sendTime":{"dayOfWeek":"TUESDAY","dayOfYear":47,"year":2021,"month":"FEBRUARY","nano":666000000,"monthValue":2,"dayOfMonth":16,"hour":1,"minute":6,"second":14,"chronology":{"calendarType":"iso8601","id":"ISO"}}})
+{"id":1613408774782,"msg":"消息 ：1","sendTime":{"dayOfWeek":"TUESDAY","dayOfYear":47,"year":2021,"month":"FEBRUARY","nano":782000000,"monthValue":2,"dayOfMonth":16,"hour":1,"minute":6,"second":14,"chronology":{"calendarType":"iso8601","id":"ISO"}}}
+2021-02-16 01:06:14.826  INFO 44501 --- [ntainer#0-0-C-1] c.github.oliverschen.mq.kafka.Consumer   : record::::ConsumerRecord(topic = jihe, partition = 0, leaderEpoch = 0, offset = 1, CreateTime = 1613408774783, serialized key size = -1, serialized value size = 252, headers = RecordHeaders(headers = [], isReadOnly = false), key = null, value = {"id":1613408774782,"msg":"消息 ：1","sendTime":{"dayOfWeek":"TUESDAY","dayOfYear":47,"year":2021,"month":"FEBRUARY","nano":782000000,"monthValue":2,"dayOfMonth":16,"hour":1,"minute":6,"second":14,"chronology":{"calendarType":"iso8601","id":"ISO"}}})
+```
+
+代码地址[mq-all](https://github.com/oliverschen/JAVA-000/tree/main/Week_12)
+
+### 第 26 课作业
+
+2. **(必做)** 思考和设计自定义MQ第二个版本或第三个版本，写代码实现其中至少一 个功能点，把设计思路和实现代码，提交到github。
 
 
 
