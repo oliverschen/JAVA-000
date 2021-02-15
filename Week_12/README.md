@@ -1,6 +1,6 @@
 ### 第 24 课作业
 
-1. **（必做）**搭建ActiveMQ服务，基于JMS，写代码分别实现对于queue和topic的消息 
+1. **(必做)** 搭建ActiveMQ服务，基于JMS，写代码分别实现对于queue和topic的消息 
 
 生产和消费，代码提交到github。 
 
@@ -80,7 +80,6 @@ public class Consumer {
 
     public static void main(String[] args) {
 
-
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
         Connection connection = null;
         Session session;
@@ -151,7 +150,36 @@ public class Consumer {
 
 ### 第 25 课作业
 
-1. **（必做）** 搭建一个3节点Kafka集群，测试功能和性能；实现spring kafka下对kafka集群 
+1. **(必做)** 搭建一个3节点Kafka集群，测试功能和性能；实现spring kafka下对kafka集群 
 
 的操作，将代码提交到github。 
+
+#### Docker 搭建
+
+##### kafka
+
+```bash
+docker run -d --name zookeeper --publish 2181:8181 --volume ~/develop/docker/app/zookeeper:/etc/localtime zookeeper:latest
+```
+
+```bash
+docker run -d --name kafka --publish 9092:9092 \
+--link zookeeper \
+--env KAFKA_ZOOKEEPER_CONNECT=192.168.0.105:2181 \
+--env KAFKA_ADVERTISED_HOST_NAME=192.168.0.105 \
+--env KAFKA_ADVERTISED_PORT=9092  \
+wurstmeister/kafka
+```
+
+##### 集群
+
+kafka 集群暂时没有搭建，后面有空余时间完善*
+
+#### 使用
+
+
+
+
+
+
 

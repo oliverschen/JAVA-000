@@ -1,4 +1,4 @@
-package com.github.oliverschen.mq;
+package com.github.oliverschen.mq.constaint;
 
 /**
  * @author ck

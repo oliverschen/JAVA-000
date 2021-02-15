@@ -5,7 +5,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 
-import static com.github.oliverschen.mq.Const.*;
+import static com.github.oliverschen.mq.constaint.Const.*;
 
 /**
  * @author ck

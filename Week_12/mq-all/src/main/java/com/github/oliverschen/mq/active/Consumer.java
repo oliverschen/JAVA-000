@@ -5,8 +5,8 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 
-import static com.github.oliverschen.mq.Const.BROKER_URL;
-import static com.github.oliverschen.mq.Const.CK_MSG_TOPIC;
+import static com.github.oliverschen.mq.constaint.Const.BROKER_URL;
+import static com.github.oliverschen.mq.constaint.Const.CK_MSG_TOPIC;
 
 /**
  * @author ck
