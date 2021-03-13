@@ -258,5 +258,46 @@ public class Consumer {
 
 2. **(必做)** 思考和设计自定义MQ第二个版本或第三个版本，写代码实现其中至少一 个功能点，把设计思路和实现代码，提交到github。
 
+#### 第一个版本-内存Queue
 
+- [x] 基于内存Queue实现生产和消费API（已经完成） 
 
+- [x] 创建内存BlockingQueue，作为底层消息存储 
+
+- [x] 定义Topic，支持多个Topic 
+
+- [x] 定义Producer，支持Send消息 
+
+- [x] 定义Consumer，支持Poll消息 
+
+老师实现，[代码地址](https://github.com/oliverschen/oli-mq/tree/v1.0)
+
+#### 第二个版本：自定义Queue 
+
+去掉内存Queue，设计自定义Queue，实现消息确认和消费offset 
+
+- [ ] 自定义内存Message数组模拟Queue。 
+
+- [ ] 使用指针记录当前消息写入位置。 
+
+- [ ] 对于每个命名消费者，用指针记录消费位置。 
+
+因为数据没有真实的弹出，还在内存，容易OOM。 
+
+不要着急，后面考虑。。。 
+
+#### 第三个版本：基于SpringMVC实现MQServer 
+
+拆分broker和client(包括producer和consumer) 
+
+- [ ] 将Queue保存到web server端 
+
+- [ ] 设计消息读写API接口，确认接口，提交offset接口 
+
+- [ ] producer和consumer通过httpclient访问Queue 
+
+- [ ] 实现消息确认，offset提交 
+
+- [ ] 实现consumer从offset增量拉取 
+
+从单机走向服务器模式。 
